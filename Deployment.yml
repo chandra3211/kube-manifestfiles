@@ -1,0 +1,46 @@
+---
+apiVersion: v1
+kind: Deployment
+metadata:
+   name: my-Dev
+   labels:
+      myapp: dev
+spec: 
+  replicas: 10
+  strategy:
+       type: Rollingupdate
+	   rollingupdate:
+	       maxsurge: 0
+		   maxunavilable: 1
+  template:
+       metadata:     
+          name: nginx-app  
+	   spec:
+          container:
+              -name: nginx-app
+                image: cba_dev/nginx:1.7.0
+                ports:
+                   -containerport: 8080	
+                resources:
+                   requests:
+                         cpu: "500m"
+                         memory: "50Gi"						 
+		   limits:
+                         cpu: "1000m"
+                         memory: "100Gi"
+						 
+------
+
+apiVersion: v1
+kind: service
+metadata:
+    name: myservice
+spec:
+   selector:
+       matchlabels:
+             myapp: dev
+	ports:
+       - port: 80
+         targetport: 8080
+		 
+			 
