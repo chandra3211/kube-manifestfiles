@@ -1,33 +1,36 @@
 ---
-apiVersion: v1
+apiVersion: apps/V1
 kind: Deployment
 metadata:
    name: my-Dev
    labels:
-      myapp: dev
+      app: android
+      env: dev
 spec: 
   replicas: 10
   strategy:
        type: Rollingupdate
 	   rollingupdate:
-	       maxsurge: 0
+	       maxsurge: 1
 		   maxunavilable: 1
   template:
-       metadata:     
-          name: nginx-app  
-	   spec:
-          container:
-              -name: nginx-app
-                image: 'aksdevopsacr.azurecr.io/app1nginxaks:latest'
-                ports:
-                   -containerport: 8080	
-                resources:
-                   requests:
-                         cpu: "500m"
-                         memory: "50Gi"						 
-		   limits:
-                         cpu: "1000m"
-                         memory: "100Gi"
+       metadata: 
+         labels:
+           app: android
+	   env: dev
+	spec:
+          containers:
+          - name: nginx-app
+            image: 'aksdevopsacr.azurecr.io/app1nginxaks:latest'
+            ports:
+            - containerport: 8080	
+            resources:
+              requests:
+                cpu: "500m"
+                memory: "50Gi"						 
+              limits:
+                cpu: "1000m"
+                memory: "100Gi"
 						 
 ------
 
@@ -36,11 +39,14 @@ kind: service
 metadata:
     name: myservice
 spec:
-   selector:
-       matchlabels:
-             myapp: dev
-	ports:
-       - port: 80
-         targetport: 8080
+  type: NodePort
+  selector:
+     matchlabels:
+         myapp: android
+	 env: dev
+  ports:
+  - port: 80
+    targetport: 8080
+    NodePort: 31000
 		 
 			 
